@@ -1,5 +1,6 @@
 #include "text.hpp"
 #include "window.hpp"
+#include "utils.hpp"
 #include <SDL3/SDL_assert.h>
 #include <iostream>
 #include <unordered_map>
@@ -10,8 +11,7 @@ namespace Text
     int init(const char* filepath)
     {
         (void)SDL_GetError();
-        if (TTF_Init())
-            throw(SDL_GetError());
+        TRY(TTF_Init());
         Text::filepath = filepath;
         return 0;
     }
@@ -25,8 +25,7 @@ namespace Text
         if (iter == fonts.end())
         {
             auto font = TTF_OpenFont(filepath, ptsize);
-            if (font == nullptr)
-                throw(SDL_GetError());
+            TRY(!font);
             std::shared_ptr<TTF_Font> ptr(font,[](TTF_Font* f) { TTF_CloseFont(f); });
             fonts[ptsize] = std::weak_ptr<TTF_Font>(ptr);
             return ptr;
@@ -40,17 +39,33 @@ namespace Text
             else
             {
                 auto font = TTF_OpenFont(filepath, ptsize);
-                if (font == nullptr)
-                    throw(SDL_GetError());
+                TRY(!font);
                 std::shared_ptr<TTF_Font> ptr(font,[](TTF_Font* f) { TTF_CloseFont(f); });
                 fonts[ptsize] = std::weak_ptr<TTF_Font>(ptr);
                 return ptr;
             }
         }
     }
-    SDL_Texture* renderText(const char* text, TTF_Font* font, Color color, FRect rect, SDL_Renderer* renderer)
+    int clearUnusedFontObjects()
     {
-        
+        int count = 0;
+        auto it = fonts.begin();
+        while (it != fonts.end())
+        {
+            if (it->second.expired())
+            {
+                it = fonts.erase(it);
+                count++;
+            }
+            else
+            {
+                it++;
+            }
+        }
+        return count;
+    }
+    Graphics::Drawing renderText(const char* text, TTF_Font* font, Color color, FRect rect, SDL_Renderer* renderer)
+    {
         if (!renderer)
             renderer = Window::getRenderer();
         SDL_GetError();
@@ -63,6 +78,8 @@ namespace Text
             throw(err);
         }
         auto* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        TRY(SDL_SetTextureAlphaMod(texture, color.a()));
+        TRY(SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND));
         // SDL_DestroySurface(surface);
         return texture;
     }

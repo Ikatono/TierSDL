@@ -5,6 +5,9 @@
 #include <SDL3/SDL_pixels.h>
 #include <algorithm>
 #include <limits>
+#include <iostream>
+
+#define TRY(x) do { if (x) { auto TRY_ERROR_MESSAGE = SDL_GetError(); std::cerr << TRY_ERROR_MESSAGE << std::endl; throw(TRY_ERROR_MESSAGE); } } while (false)
 
 struct FSize
 {
@@ -15,6 +18,7 @@ struct FSize
     float& h() { return _h; }
     const float& h() const { return _h; }
     FSize merge(const FSize& other) const { return { std::max(_w, other._w), std::max(_h, other._h) }; }
+    FSize operator *(float scalar) const { return FSize(_w*scalar, _h*scalar);}
     private:
         float _w, _h;
 };
@@ -29,6 +33,8 @@ struct Size
     const int& h() const { return _h; }
     Size merge(const Size& other) const { return { std::max(_w, other._w), std::max(_h, other._h) }; }
     FSize toFloat() const { return { static_cast<float>(_w), static_cast<float>(_h) }; }
+    Size operator *(int scalar) const { return Size(_w*scalar, _h*scalar);}
+    FSize operator *(float scalar) const { return FSize(_w*scalar, _h*scalar);}
     private:
         int _w, _h;
 };
@@ -98,11 +104,11 @@ struct FRect
     FPoint center() const { return {inner.x + inner.w/2, inner.y + inner.h/2}; }
     bool contains(Point point) const
     {
-        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + w());
+        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + h());
     }
     bool contains(FPoint point)  const
     {
-        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + w());
+        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + h());
     }
 };
 
@@ -132,11 +138,11 @@ struct Rect
     Point center() const { return {inner.x + inner.w/2, inner.y + inner.h/2}; }
     bool contains(Point point) const
     {
-        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + w());
+        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + h());
     }
     bool contains(FPoint point) const
     {
-        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + w());
+        return !(point.x() < x() || point.x() > x() + w() || point.y() < y() || point.y() > y() + h());
     }
 };
 
@@ -159,6 +165,16 @@ struct Color
     const Uint8& b() const { return inner.b; }
     Uint8& a() { return inner.a; }
     const Uint8& a() const { return inner.a; }
+    Color blendWith(Color other) const
+    {
+        auto f = [](Uint8 a, Uint8 b) -> Uint8 { return (a / 2) + (b / 2) + (a & b & 1); };
+        return {
+            f(r(), other.r()),
+            f(g(), other.g()),
+            f(b(), other.b()),
+            f(a(), other.a())
+        };
+    }
 };
 
 #define WHITE Color(255, 255, 255, 255)

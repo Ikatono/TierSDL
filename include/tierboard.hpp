@@ -9,6 +9,12 @@
 
 namespace Tier
 {
+    //a cell and a parent
+    struct CellRow
+    {
+        Cell* cell;
+        Row* row;
+    };
     class Board : public Graphics::Drawable
     {
         public:
@@ -17,12 +23,12 @@ namespace Tier
             FPoint getCorner() const override;
             void setCorner(FPoint point) override;
             void addChild(Row* child, int index=-1);
-
+            CellRow findCell(uint32_t cellId);
+            Row* findRow(uint32_t rowId);
             void arrangeChildren();
             void resizeCells(FSize size);
             std::vector<Row*> children;
         private:
-            
             FRect rect;
     };
 }

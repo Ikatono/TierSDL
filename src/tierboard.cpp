@@ -42,6 +42,31 @@ namespace Tier
     }
     void Board::resizeCells(FSize size)
     {
-        
+        for (auto row : children)
+        {
+            row->resizeCells(size);
+        }
+        arrangeChildren();
+    }
+    CellRow Board::findCell(uint32_t cellId)
+    {
+        for (auto row : children)
+        {
+            for (auto cell : row->children)
+            {
+                if (cell->getId() == cellId)
+                    return {cell, row};
+            }
+        }
+        return {nullptr, nullptr};
+    }
+    Row* Board::findRow(uint32_t rowId)
+    {
+        for (auto row : children)
+        {
+            if (row->getId() == rowId)
+                return row;
+        }
+        return nullptr;
     }
 }

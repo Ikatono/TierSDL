@@ -21,11 +21,9 @@ namespace Window
     }
     static SDL_Window* window = nullptr;
     static SDL_Renderer* renderer = nullptr;
-    static Size windowSize = { 800, 600 };
-    SDL_Window* createWindow()
+    SDL_Window* createWindow(Size size)
     {
-        const auto size = getWindowSize();
-        window = SDL_CreateWindow("Tier SDL", size.w(), size.h(), 0);
+        window = SDL_CreateWindow("Tier SDL", size.w(), size.h(), SDL_WINDOW_RESIZABLE);
         auto* const rendererName = getBestRenderer();
         std::cout << "Rendering engine: " << rendererName << std::endl;
         renderer = SDL_CreateRenderer(window, rendererName);
@@ -49,11 +47,13 @@ namespace Window
     }
     void setWindowSize(Size size)
     {
-        windowSize = size;
+        // windowSize = size;
     }
     Size getWindowSize()
     {
-        return windowSize;
+        Size size;
+        SDL_GetWindowSizeInPixels(getWindow(), &size.w(), &size.h());
+        return size;
     }
     void fillWindow(Color color)
     {

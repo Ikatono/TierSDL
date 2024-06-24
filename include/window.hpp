@@ -15,8 +15,14 @@ namespace Window
         "opengles2",
         "software",
     };
+    // constexpr std::array rendererPriority {
+    //     "opengl",
+    //     "vulkan",
+    //     "opengles2",
+    //     "software",
+    // };
     const char* getBestRenderer();
-    SDL_Window* createWindow();
+    SDL_Window* createWindow(Size size);
     void destroyWindow();
     SDL_Window* getWindow();
     SDL_Renderer* getRenderer();

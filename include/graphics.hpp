@@ -20,7 +20,8 @@ namespace Graphics
             ~Drawing();
             FSize getSize() const;
             //TODO add scaling option?
-            void drawAt(SDL_Renderer* renderer, FPoint point);
+            void drawAt(SDL_Renderer* renderer, FPoint point, float scale=1) const;
+            operator bool() const;
         private:
             SDL_Texture* texture;
             // FSize size;

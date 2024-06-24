@@ -7,15 +7,15 @@
 #include "graphics.hpp"
 #include "text.hpp"
 #include <string>
+#include <unordered_set>
 
 namespace Tier
 {
     class Cell : public Graphics::Drawable
     {
         public:
-            explicit Cell(FRect rect);
-            Cell(FPoint point, FSize size);
-            FRect rect;
+            Cell();
+            ~Cell();
             Color backgroundColor;
             std::string text;
             Color fontColor;
@@ -34,14 +34,24 @@ namespace Tier
             bool contains(FPoint point) const;
             FPoint getCorner() const override;
             FSize getSize() const override;
+            FRect getRect() const;
             void setCorner(FPoint point) override;
+            static void setSize(FSize size);
+            void setImage(const char* filepath);
+            static FSize cellSize();
+            uint32_t getId() const;
+            static std::unordered_set<uint32_t> cellIds;
         private:
-            SDL_Texture* fontTexture;
-            FSize fontTextureSize;
+            static FSize size;
+            FPoint corner;
+            Graphics::Drawing fontTexture;
             std::shared_ptr<TTF_Font> font;
             int fontSize;
+            Graphics::Drawing image;
+            const uint32_t id;
             void updateFont();
             void updateFontTexture();
+            static uint32_t getNewId();
     };
 }
 

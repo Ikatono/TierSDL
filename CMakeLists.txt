@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(tiersdl)
 
-set (CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Debug)
 # Create an option to switch between a system sdl library and a vendored SDL library
 option(MYGAME_VENDORED "Use vendored libraries" ON)
@@ -30,8 +30,10 @@ add_executable(tiersdl WIN32
     src/tiercell.cpp
     src/tierrow.cpp
     src/tierboard.cpp
+    src/tierevent.cpp
     src/text.cpp
     src/graphics.cpp
+    src/image.cpp
     )
 
 # Link to the actual SDL3 library.
